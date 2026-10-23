@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Municipal Dispatcher Command Center | AwamConnect</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-urdu { font-family: 'Noto Nastaliq Urdu', serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-18 py-2.5 items-center">
+                <div class="flex items-center space-x-3.5">
+                    <img src="/static/images/logo.png" alt="AwamConnect" class="h-11 w-11 object-contain rounded-xl bg-white p-1 shadow-md border border-emerald-400/50">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-black tracking-tight text-white drop-shadow-sm">AwamConnect</span>
+                            <span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-mono font-bold">DISPATCHER HQ</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Sindh Municipal Grievance Triage & Field Allocation Portal</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <a href="/api/complaints/export" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow flex items-center space-x-1.5">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        <span>Export Dispatch JSON</span>
+                    </a>
+                    <a href="/" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-house text-emerald-400"></i>
+                        <span>Citizen Portal</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow space-y-6">
+        
+        <!-- Summary Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Registered</span>
+                    <h3 id="statTotal" class="text-2xl font-extrabold text-slate-900 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-red-500">Critical (&lt; 12h SLA)</span>
+                    <h3 id="statHigh" class="text-2xl font-extrabold text-red-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-500">Pending Dispatch</span>
+                    <h3 id="statPending" class="text-2xl font-extrabold text-amber-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+            </div>
+
+            <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
+                <div>
+                    <span class="text-xs font-bold uppercase tracking-wider text-emerald-500">Resolved Tickets</span>
+                    <h3 id="statResolved" class="text-2xl font-extrabold text-emerald-600 mt-1">0</h3>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="font-bold text-slate-700 uppercase tracking-wider"><i class="fa-solid fa-filter mr-1 text-emerald-600"></i> Filters:</span>
+                
+                <select id="priorityFilter" onchange="loadComplaints()" class="px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold text-slate-700">
+                    <option value="">All Priorities</option>
+                    <option value="HIGH">High Priority (&lt; 12h)</option>
+                    <option value="MEDIUM">Medium Priority (24-48h)</option>
+                    <option value="LOW">Low Priority (3-5d)</option>
+                </select>
+
+                <select id="statusFilter" onchange="loadComplaints()" class="px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 font-semibold text-slate-700">
+                    <option value="">All Statuses</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="DISPATCHED">Dispatched</option>
+                    <option value="RESOLVED">Resolved</option>
+                </select>
+
+                <input type="text" id="agencyFilter" onkeyup="debounceLoad()" placeholder="Filter by Agency (e.g. KMC, K-Electric)" 
+                       class="px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-emerald-500 text-slate-700 w-56">
+            </div>
+
+            <button onclick="loadComplaints()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition flex items-center space-x-1.5">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Refresh Queue</span>
+            </button>
+        </div>
+
+        <!-- Complaints Review Table -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                            <th class="py-3 px-4">Ticket UUID</th>
+                            <th class="py-3 px-4">Complainant</th>
+                            <th class="py-3 px-4">Allotted Worker</th>
+                            <th class="py-3 px-4">Priority / SLA</th>
+                            <th class="py-3 px-4">Target Municipal Agency</th>
+                            <th class="py-3 px-4">Grievance Issue & Description</th>
+                            <th class="py-3 px-4">Current Status</th>
+                            <th class="py-3 px-4 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="complaintsTableBody" class="divide-y divide-slate-200">
+                        <tr>
+                            <td colspan="8" class="py-8 text-center text-slate-400">Loading triage queue...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Ticket Detail Modal -->
+    <div id="detailModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-start border-b border-slate-200 pb-3">
+                <div>
+                    <span class="text-xs text-slate-400 font-bold uppercase">Grievance Audit Record</span>
+                    <h3 id="modalTicketId" class="text-lg font-extrabold text-slate-900 font-mono">AWAM-XXXX</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-slate-600 text-base">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="modalEvidenceContainer" class="hidden">
+                <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block mb-1.5">Visual Photo Evidence</span>
+                <img id="modalImage" src="" alt="Evidence Photo" class="max-h-64 rounded-xl border border-slate-200 object-cover w-full">
+            </div>
+
+            <!-- Complainant Identity -->
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs">
+                <span class="text-slate-400 font-semibold block mb-1">
+                    <i class="fa-solid fa-user text-emerald-600 mr-1"></i> Complainant / Citizen Information
+                </span>
+                <div id="modalCitizenInfo" class="text-slate-800 font-medium"></div>
+            </div>
+
+            <!-- Dedicated Assigned Worker Card / Box -->
+            <div id="modalWorkerBox" class="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-xl p-3.5 border border-slate-700 space-y-2">
+                <div class="flex items-center justify-between border-b border-slate-700 pb-1.5">
+                    <div class="flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-gear text-emerald-400 text-xs"></i>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Allotted Municipal Field Specialist</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        <i class="fa-solid fa-circle text-[5px] mr-1 text-emerald-400 animate-pulse"></i> Task Allotted
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h4 id="modalWorkerName" class="text-xs font-extrabold text-white">Worker Name</h4>
+                        <span id="modalWorkerRole" class="inline-block mt-0.5 px-2 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-500/30 text-emerald-200 border border-emerald-400/30">
+                            Role
+                        </span>
+                    </div>
+                    <span class="font-urdu text-xs text-slate-300" dir="rtl">مختص کردہ فیلڈ ورکر</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+                    <a id="modalWorkerPhoneLink" href="#" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 p-2 rounded-lg border border-slate-700 text-slate-200 transition">
+                        <i class="fa-solid fa-phone text-emerald-400 text-xs"></i>
+                        <span id="modalWorkerPhone" class="font-mono text-[11px] truncate">+92 300 0000000</span>
+                    </a>
+                    <a id="modalWorkerEmailLink" href="#" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 p-2 rounded-lg border border-slate-700 text-slate-200 transition">
+                        <i class="fa-solid fa-envelope text-emerald-400 text-xs"></i>
+                        <span id="modalWorkerEmail" class="font-mono text-[11px] truncate">worker@example.com</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 text-xs">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold block mb-0.5">Priority & SLA</span>
+                    <span id="modalPriority" class="font-extrabold text-red-600">HIGH</span>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span class="text-slate-400 font-semibold block mb-0.5">Target Agency</span>
+                    <span id="modalAgency" class="font-bold text-slate-800">K-Electric</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs">
+                <span class="text-slate-400 font-semibold block mb-1">Citizen Raw Description (Detected: <span id="modalLang">en</span>)</span>
+                <p id="modalDesc" class="text-slate-800 font-medium"></p>
+            </div>
+
+            <div class="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200 text-xs">
+                <span class="text-emerald-800 font-bold block mb-1 flex items-center">
+                    <i class="fa-solid fa-brain mr-1.5"></i> AI Visual Reasoning & Justification
+                </span>
+                <p id="modalReasoning" class="text-slate-700 font-medium"></p>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200 text-xs">
+                <button onclick="closeDetailModal()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold transition">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Script -->
+    <script>
+        let debounceTimer;
+        let complaintsData = [];
+
+        function debounceLoad() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(loadComplaints, 300);
+        }
+
+        async function loadComplaints() {
+            const priority = document.getElementById('priorityFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const agency = document.getElementById('agencyFilter').value.trim();
+
+            const params = new URLSearchParams();
+            if (priority) params.append('priority', priority);
+            if (status) params.append('status', status);
+            if (agency) params.append('agency', agency);
+
+            try {
+                const res = await fetch(`/api/complaints?${params.toString()}`);
+                const data = await res.json();
+                complaintsData = data;
+                renderTable(data);
+                updateStats(data);
+            } catch (err) {
+                console.error("Failed to load complaints:", err);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statHigh').innerText = data.filter(c => c.priority === 'HIGH').length;
+            document.getElementById('statPending').innerText = data.filter(c => c.status === 'PENDING').length;
+            document.getElementById('statResolved').innerText = data.filter(c => c.status === 'RESOLVED').length;
+        }
+
+        function renderTable(data) {
+            const tbody = document.getElementById('complaintsTableBody');
+            if (data.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="py-12 text-center text-slate-400">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 block"></i>
+                            No grievance tickets match current filters.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = data.map(c => `
+                <tr class="hover:bg-slate-50/80 transition">
+                    <td class="py-3 px-4 font-mono font-bold text-slate-900">
+                        <div class="flex items-center space-x-1.5">
+                            <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">#${c.id}</span>
+                            <span>${c.ticket_uuid}</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-4 text-slate-700">
+                        <div class="font-bold text-slate-900">${c.citizen_name || '<span class="text-slate-400 italic font-normal">Anonymous</span>'}</div>
+                        <div class="text-[10px] text-slate-400 font-mono">${c.citizen_phone || c.citizen_cnic || 'Guest'}</div>
+                    </td>
+                    <td class="py-3 px-4 text-slate-700">
+                        ${c.assigned_worker_name ? `
+                            <div class="font-bold text-slate-900">${c.assigned_worker_name}</div>
+                            <span class="inline-block mt-0.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-100 text-emerald-800">${c.assigned_worker_role}</span>
+                            <div class="text-[10px] text-slate-400 font-mono mt-0.5">${c.assigned_worker_phone || ''}</div>
+                        ` : '<span class="text-slate-400 italic text-[11px]">Pending Allocation</span>'}
+                    </td>
+                    <td class="py-3 px-4">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-extrabold ${getPriorityClass(c.priority)}">
+                            ${c.priority}
+                        </span>
+                        <div class="text-[10px] text-slate-400 mt-0.5">${c.sla_window}</div>
+                    </td>
+                    <td class="py-3 px-4 font-semibold text-slate-800">
+                        ${c.target_agency}
+                    </td>
+                    <td class="py-3 px-4 max-w-xs truncate text-slate-600">
+                        <div class="font-bold text-slate-800 truncate">${c.detected_issue}</div>
+                        <div class="text-[11px] truncate text-slate-500">${c.raw_description}</div>
+                    </td>
+                    <td class="py-3 px-4">
+                        <select onchange="updateTicketStatus('${c.ticket_uuid}', this.value)" 
+                                class="px-2 py-1 rounded-lg border border-slate-300 font-semibold text-[11px] ${getStatusClass(c.status)} focus:outline-none">
+                            <option value="PENDING" ${c.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                            <option value="DISPATCHED" ${c.status === 'DISPATCHED' ? 'selected' : ''}>DISPATCHED</option>
+                            <option value="RESOLVED" ${c.status === 'RESOLVED' ? 'selected' : ''}>RESOLVED</option>
+                        </select>
+                    </td>
+                    <td class="py-3 px-4 text-right">
+                        <button onclick="viewTicketDetail('${c.ticket_uuid}')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition text-[11px]">
+                            <i class="fa-solid fa-eye mr-1"></i> Inspect
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getPriorityClass(p) {
+            if (p === 'HIGH') return 'bg-red-100 text-red-800 border border-red-200';
+            if (p === 'MEDIUM') return 'bg-amber-100 text-amber-800 border border-amber-200';
+            return 'bg-blue-100 text-blue-800 border border-blue-200';
+        }
+
+        function getStatusClass(s) {
+            if (s === 'PENDING') return 'bg-amber-50 text-amber-700 border-amber-300';
+            if (s === 'DISPATCHED') return 'bg-blue-50 text-blue-700 border-blue-300';
+            return 'bg-emerald-50 text-emerald-700 border-emerald-300';
+        }
+
+        async function updateTicketStatus(uuid, newStatus) {
+            try {
+                const res = await fetch(`/api/complaints/${uuid}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (res.ok) {
+                    loadComplaints();
+                } else {
+                    alert("Failed to update status.");
+                }
+            } catch (err) {
+                alert("Network error: " + err.message);
+            }
+        }
+
+        function viewTicketDetail(uuid) {
+            const ticket = complaintsData.find(c => c.ticket_uuid === uuid);
+            if (!ticket) return;
+
+            document.getElementById('modalTicketId').innerText = ticket.ticket_uuid;
+            document.getElementById('modalPriority').innerText = `${ticket.priority} (${ticket.sla_window})`;
+            document.getElementById('modalPriority').className = `font-extrabold ${ticket.priority === 'HIGH' ? 'text-red-600' : 'text-amber-600'}`;
+            document.getElementById('modalAgency').innerText = ticket.target_agency;
+            document.getElementById('modalDesc').innerText = ticket.raw_description;
+            document.getElementById('modalLang').innerText = ticket.language_detected.toUpperCase();
+            document.getElementById('modalReasoning').innerText = ticket.ai_reasoning;
+
+            // Worker details
+            document.getElementById('modalWorkerName').innerText = ticket.assigned_worker_name || 'Field Specialist';
+            document.getElementById('modalWorkerRole').innerText = ticket.assigned_worker_role || 'Municipal Worker';
+            document.getElementById('modalWorkerPhone').innerText = ticket.assigned_worker_phone || '--';
+            document.getElementById('modalWorkerEmail').innerText = ticket.assigned_worker_email || '--';
+            document.getElementById('modalWorkerPhoneLink').href = `tel:${(ticket.assigned_worker_phone || '').replace(/\s+/g, '')}`;
+            document.getElementById('modalWorkerEmailLink').href = `mailto:${ticket.assigned_worker_email || ''}`;
+
+            // Citizen Info
+            const citizenInfo = document.getElementById('modalCitizenInfo');
+            if (ticket.citizen_name || ticket.citizen_phone || ticket.citizen_cnic || ticket.citizen_address) {
+                citizenInfo.innerHTML = `
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div>Name: <strong>${ticket.citizen_name || 'N/A'}</strong></div>
+                        <div>Phone: <strong>${ticket.citizen_phone || 'N/A'}</strong></div>
+                        <div>CNIC: <strong>${ticket.citizen_cnic || 'N/A'}</strong></div>
+                        <div>Address: <strong>${ticket.citizen_address || 'N/A'}</strong></div>
+                    </div>
+                `;
+            } else {
+                citizenInfo.innerHTML = '<span class="text-slate-400 italic">Filed anonymously / guest submission</span>';
+            }
+
+            const imgCont = document.getElementById('modalEvidenceContainer');
+            if (ticket.image_url) {
+                document.getElementById('modalImage').src = ticket.image_url;
+                imgCont.classList.remove('hidden');
+            } else {
+                imgCont.classList.add('hidden');
+            }
+
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeDetailModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // Initialize on load
+        loadComplaints();
+    </script>
+</body>
+</html>

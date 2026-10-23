@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Complaints | AwamConnect - میری شکایات</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts for Urdu & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-urdu { font-family: 'Noto Nastaliq Urdu', serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-18 py-2.5 items-center">
+                <a href="/" class="flex items-center space-x-3.5 group">
+                    <img src="/static/images/logo.png" alt="AwamConnect" class="h-11 w-11 object-contain rounded-xl bg-white p-1 shadow-md border border-emerald-400/50 group-hover:scale-105 transition duration-200">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-black tracking-tight text-white drop-shadow-sm">AwamConnect</span>
+                            <span class="font-urdu text-sm text-emerald-200 font-bold">عوام کنیکٹ</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-200/90 font-medium tracking-wide">Government of Sindh • Civic Grievance Dashboard</p>
+                    </div>
+                </a>
+
+                <div class="flex items-center space-x-3">
+                    <a href="/" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center space-x-1.5 shadow-sm border border-emerald-400/40">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>File New Grievance</span>
+                    </a>
+                    <a href="/logout" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-800/80 hover:bg-red-700 text-emerald-100 border border-emerald-700 hover:border-red-600 transition flex items-center space-x-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span class="hidden sm:inline">Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-grow">
+        
+        <!-- Welcome & Citizen Profile Header -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+            
+            <!-- Citizen Identity Card -->
+            <div class="lg:col-span-8 glass-panel rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 gap-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl font-bold shadow-inner">
+                            <i class="fa-solid fa-id-badge"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <h1 class="text-2xl font-extrabold text-slate-900">{{ user.name }}</h1>
+                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800 border border-emerald-200">Verified Citizen</span>
+                            </div>
+                            <p class="text-xs text-slate-500">@{{ user.username }} • Joined {{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'Recently' }}</p>
+                        </div>
+                    </div>
+                    <span class="font-urdu text-lg text-emerald-800 font-bold self-start sm:self-auto" dir="rtl">
+                        شہری پروفائل اور شکایات
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-6 text-xs">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 font-semibold block mb-1">
+                            <i class="fa-solid fa-id-card text-emerald-600 mr-1"></i> CNIC Number
+                        </span>
+                        <span class="font-bold text-slate-800 text-sm font-mono">{{ user.cnic }}</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <span class="text-slate-400 font-semibold block mb-1">
+                            <i class="fa-solid fa-phone text-emerald-600 mr-1"></i> Phone
+                        </span>
+                        <span class="font-bold text-slate-800 text-sm font-mono">{{ user.phone }}</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 sm:col-span-2">
+                        <span class="text-slate-400 font-semibold block mb-1">
+                            <i class="fa-solid fa-envelope text-emerald-600 mr-1"></i> Email
+                        </span>
+                        <span class="font-bold text-slate-800 text-sm break-all">{{ user.email }}</span>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 sm:col-span-4">
+                        <span class="text-slate-400 font-semibold block mb-1">
+                            <i class="fa-solid fa-location-dot text-emerald-600 mr-1"></i> Residential Address
+                        </span>
+                        <span class="font-semibold text-slate-700 text-sm">{{ user.address }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Overview Card -->
+            <div class="lg:col-span-4 glass-panel rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-4 flex items-center">
+                        <i class="fa-solid fa-chart-pie text-emerald-600 mr-2"></i>
+                        Grievance Redressal Metrics
+                    </h3>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-100 text-center">
+                            <span class="text-2xl font-black text-emerald-800">{{ complaints|length }}</span>
+                            <span class="block text-[11px] font-bold text-emerald-700 mt-1">Total Filed</span>
+                        </div>
+
+                        <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-100 text-center">
+                            <span class="text-2xl font-black text-amber-800">
+                                {{ complaints|selectattr("status.value", "equalto", "PENDING")|list|length }}
+                            </span>
+                            <span class="block text-[11px] font-bold text-amber-700 mt-1">Pending Triage</span>
+                        </div>
+
+                        <div class="bg-blue-50/70 p-4 rounded-2xl border border-blue-100 text-center">
+                            <span class="text-2xl font-black text-blue-800">
+                                {{ complaints|selectattr("status.value", "equalto", "DISPATCHED")|list|length }}
+                            </span>
+                            <span class="block text-[11px] font-bold text-blue-700 mt-1">Dispatched</span>
+                        </div>
+
+                        <div class="bg-green-50/70 p-4 rounded-2xl border border-green-100 text-center">
+                            <span class="text-2xl font-black text-green-800">
+                                {{ complaints|selectattr("status.value", "equalto", "RESOLVED")|list|length }}
+                            </span>
+                            <span class="block text-[11px] font-bold text-green-700 mt-1">Resolved</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-slate-200">
+                    <a href="/" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center space-x-2 text-xs">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>Lodge New Civic Grievance</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Complaints Listing -->
+        <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 gap-3">
+                <div>
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center">
+                        <i class="fa-solid fa-clipboard-list text-emerald-600 mr-2.5"></i>
+                        Grievances History
+                    </h2>
+                    <p class="text-xs text-slate-500">Real-time status updates and municipal agency SLA tracking for tickets filed by your account.</p>
+                </div>
+                <span class="text-xs font-semibold bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-200 self-start sm:self-auto">
+                    {{ complaints|length }} Grievance(s) Recorded
+                </span>
+            </div>
+
+            {% if complaints %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6">
+                    {% for c in complaints %}
+                        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm hover:shadow-md transition flex flex-col justify-between">
+                            <div>
+                                <!-- Top Bar with ID and Status Badge -->
+                                <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-mono font-bold text-xs">#{{ c.id }}</span>
+                                        <span class="font-mono font-extrabold text-sm text-emerald-900">{{ c.ticket_uuid }}</span>
+                                        <button onclick="navigator.clipboard.writeText('Complaint #{{ c.id }} ({{ c.ticket_uuid }})'); alert('Complaint #{{ c.id }} copied!');" class="text-slate-400 hover:text-slate-600 text-xs" title="Copy Complaint Reference">
+                                            <i class="fa-regular fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <!-- Priority Badge -->
+                                        {% if c.priority.value == 'HIGH' %}
+                                            <span class="px-2 py-0.5 text-[10px] font-black rounded-full bg-red-100 text-red-800 border border-red-200">HIGH</span>
+                                        {% elif c.priority.value == 'MEDIUM' %}
+                                            <span class="px-2 py-0.5 text-[10px] font-black rounded-full bg-amber-100 text-amber-800 border border-amber-200">MEDIUM</span>
+                                        {% else %}
+                                            <span class="px-2 py-0.5 text-[10px] font-black rounded-full bg-blue-100 text-blue-800 border border-blue-200">LOW</span>
+                                        {% endif %}
+
+                                        <!-- Status Badge -->
+                                        {% if c.status.value == 'RESOLVED' %}
+                                            <span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full bg-green-100 text-green-800 border border-green-200">RESOLVED</span>
+                                        {% elif c.status.value == 'DISPATCHED' %}
+                                            <span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full bg-blue-100 text-blue-800 border border-blue-200">DISPATCHED</span>
+                                        {% else %}
+                                            <span class="px-2.5 py-0.5 text-[10px] font-extrabold rounded-full bg-slate-100 text-slate-700 border border-slate-200">PENDING</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <!-- Issue Title -->
+                                <h4 class="font-bold text-slate-800 text-sm mt-3">{{ c.detected_issue }}</h4>
+
+                                <!-- Citizen Raw Description -->
+                                <p class="text-xs text-slate-600 mt-1 line-clamp-2 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                                    "{{ c.raw_description }}"
+                                </p>
+
+                                <!-- AI Reasoning -->
+                                <div class="mt-3 text-xs bg-emerald-50/60 p-2.5 rounded-lg border border-emerald-100">
+                                    <span class="font-bold text-emerald-800 block text-[11px] mb-0.5">
+                                        <i class="fa-solid fa-brain mr-1 text-emerald-600"></i> AI Multimodal Triage:
+                                    </span>
+                                    <p class="text-slate-600 line-clamp-3 leading-relaxed">{{ c.ai_reasoning }}</p>
+                                </div>
+
+                                <!-- Assigned Worker Box -->
+                                {% if c.assigned_worker_name %}
+                                    <div class="mt-3 bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-xl p-3 border border-slate-700/80 text-xs space-y-1.5">
+                                        <div class="flex items-center justify-between border-b border-slate-700 pb-1">
+                                            <div class="flex items-center space-x-1.5">
+                                                <i class="fa-solid fa-user-gear text-emerald-400 text-xs"></i>
+                                                <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Allotted Worker</span>
+                                            </div>
+                                            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300">
+                                                On Duty
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-between">
+                                            <div>
+                                                <span class="font-extrabold text-white text-xs">{{ c.assigned_worker_name }}</span>
+                                                <span class="ml-1.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-emerald-500/30 text-emerald-200">
+                                                    {{ c.assigned_worker_role }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-2 text-[10px] pt-0.5">
+                                            <a href="tel:{{ c.assigned_worker_phone }}" class="flex items-center space-x-1 text-slate-300 hover:text-white truncate">
+                                                <i class="fa-solid fa-phone text-emerald-400"></i>
+                                                <span class="font-mono truncate">{{ c.assigned_worker_phone }}</span>
+                                            </a>
+                                            <a href="mailto:{{ c.assigned_worker_email }}" class="flex items-center space-x-1 text-slate-300 hover:text-white truncate">
+                                                <i class="fa-solid fa-envelope text-emerald-400"></i>
+                                                <span class="truncate">{{ c.assigned_worker_email }}</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <!-- Photo if present -->
+                                {% if c.image_url %}
+                                    <div class="mt-3">
+                                        <img src="{{ c.image_url }}" alt="Civic Evidence" class="h-28 w-full object-cover rounded-xl border border-slate-200 shadow-inner">
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Footer Metadata -->
+                            <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                                <div>
+                                    <span class="block font-medium text-slate-700">
+                                        <i class="fa-solid fa-building-flag text-emerald-600 mr-1"></i> {{ c.target_agency }}
+                                    </span>
+                                    <span class="text-slate-400">SLA: {{ c.sla_window }}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block">{{ c.created_at.strftime('%d %b, %Y') if c.created_at else '' }}</span>
+                                    <span class="text-slate-400 font-mono">{{ c.created_at.strftime('%I:%M %p') if c.created_at else '' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="text-center py-16">
+                    <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto text-3xl mb-4">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                    <h3 class="text-base font-bold text-slate-700">No Grievances Filed Yet</h3>
+                    <p class="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                        You have not submitted any complaints under this account. Any issues you report will automatically appear here with live SLA status tracking.
+                    </p>
+                    <a href="/" class="mt-5 inline-flex items-center space-x-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-5 rounded-xl shadow text-xs transition">
+                        <i class="fa-solid fa-camera"></i>
+                        <span>File Your First Grievance</span>
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500 mt-12">
+        <p>© 2026 AwamConnect (عوام کنیکٹ) • Sindh Municipal Redressal Cell</p>
+    </footer>
+
+</body>
+</html>

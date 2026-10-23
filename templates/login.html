@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Login | AwamConnect - عوام کنیکٹ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts for Urdu & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-urdu { font-family: 'Noto Nastaliq Urdu', serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-18 py-2.5 items-center">
+                <a href="/" class="flex items-center space-x-3.5 group">
+                    <img src="/static/images/logo.png" alt="AwamConnect" class="h-11 w-11 object-contain rounded-xl bg-white p-1 shadow-md border border-emerald-400/50 group-hover:scale-105 transition duration-200">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-black tracking-tight text-white drop-shadow-sm">AwamConnect</span>
+                            <span class="font-urdu text-sm text-emerald-200 font-bold">عوام کنیکٹ</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-200/90 font-medium tracking-wide">Government of Sindh • Civic Grievance AI Platform</p>
+                    </div>
+                </a>
+
+                <div class="flex items-center space-x-3">
+                    <a href="/signup" class="px-4 py-2 rounded-xl text-xs font-bold bg-white text-emerald-950 hover:bg-emerald-50 transition shadow-sm flex items-center space-x-1.5">
+                        <i class="fa-solid fa-user-plus text-emerald-600"></i>
+                        <span>Create Account</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-md mx-auto px-4 sm:px-6 py-12 w-full">
+        <div class="glass-card rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-200">
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <img src="/static/images/logo.png" alt="AwamConnect Official Logo" class="h-18 w-18 mx-auto mb-3 object-contain rounded-2xl bg-white p-1 shadow-md border border-emerald-500/20">
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    Citizen Log In
+                </h1>
+                <p class="font-urdu text-base text-emerald-800 mt-1 font-semibold" dir="rtl">
+                    لاگ ان کریں (صارف کا نام یا ای میل)
+                </p>
+                <p class="text-xs text-slate-500 mt-1">
+                    Sign in using your <strong>Username</strong> or <strong>Email address</strong>.
+                </p>
+            </div>
+
+            <!-- Flash Alert Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for category, message in messages %}
+                            <div class="p-3.5 rounded-xl text-xs font-semibold flex items-center space-x-2 {% if category == 'danger' %}bg-red-50 text-red-800 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% elif category == 'warning' %}bg-amber-50 text-amber-800 border border-amber-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                                <i class="fa-solid {% if category == 'danger' %}fa-circle-exclamation text-red-500{% elif category == 'success' %}fa-circle-check text-emerald-500{% elif category == 'warning' %}fa-triangle-exclamation text-amber-500{% else %}fa-circle-info text-blue-500{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Login Form -->
+            <form action="{{ url_for('login_view', next=request.args.get('next')) }}" method="POST" class="space-y-5">
+                
+                <!-- Identifier (Username or Email) -->
+                <div>
+                    <label for="identifier" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Username or Email <span class="text-red-500">*</span>
+                        <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">صارف کا نام یا ای میل</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-user text-sm"></i>
+                        </div>
+                        <input type="text" id="identifier" name="identifier" required
+                            value="{{ identifier if identifier else '' }}"
+                            placeholder="Enter username or name@example.com"
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <div class="flex justify-between items-center mb-1.5">
+                        <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <span class="font-urdu text-slate-400 text-[11px]">پاس ورڈ</span>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-lock text-sm"></i>
+                        </div>
+                        <input type="password" id="password" name="password" required
+                            placeholder="••••••••"
+                            class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                        <button type="button" onclick="togglePasswordVisibility('password', 'pwdToggleIcon')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                            <i id="pwdToggleIcon" class="fa-regular fa-eye text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Remember / Help -->
+                <div class="flex items-center justify-between text-xs text-slate-500 pt-1">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" name="remember" class="rounded text-emerald-600 focus:ring-emerald-500">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" onclick="alert('Please contact support or register a new citizen account if you cannot access your account.'); return false;" class="text-emerald-700 hover:underline">Forgot password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition duration-150 flex items-center justify-center space-x-2 text-sm">
+                    <i class="fa-solid fa-right-to-bracket"></i>
+                    <span>Log In to AwamConnect</span>
+                </button>
+            </form>
+
+            <!-- Sign Up Link Footer -->
+            <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+                <p class="text-xs text-slate-600">
+                    Don't have an account yet? 
+                    <a href="/signup" class="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+                        Register as a Citizen <i class="fa-solid fa-arrow-right text-[10px] ml-0.5"></i>
+                    </a>
+                </p>
+                <div class="mt-3">
+                    <a href="/" class="text-xs text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-house mr-1"></i> Return to Homepage
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 AwamConnect (عوام کنیکٹ) • Sindh Municipal Redressal Cell</p>
+    </footer>
+
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
+</body>
+</html>

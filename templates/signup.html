@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citizen Registration | AwamConnect - عوام کنیکٹ</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts for Urdu & English -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-urdu { font-family: 'Noto Nastaliq Urdu', serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-emerald-50/30 to-slate-100 min-h-screen text-slate-800 flex flex-col justify-between">
+
+    <!-- Top Navigation Bar -->
+    <nav class="bg-gradient-to-r from-emerald-900 via-emerald-800 to-teal-900 text-white shadow-xl sticky top-0 z-40 border-b border-emerald-700/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-18 py-2.5 items-center">
+                <a href="/" class="flex items-center space-x-3.5 group">
+                    <img src="/static/images/logo.png" alt="AwamConnect" class="h-11 w-11 object-contain rounded-xl bg-white p-1 shadow-md border border-emerald-400/50 group-hover:scale-105 transition duration-200">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl font-black tracking-tight text-white drop-shadow-sm">AwamConnect</span>
+                            <span class="font-urdu text-sm text-emerald-200 font-bold">عوام کنیکٹ</span>
+                        </div>
+                        <p class="text-[11px] text-emerald-200/90 font-medium tracking-wide">Government of Sindh • Civic Grievance AI Platform</p>
+                    </div>
+                </a>
+
+                <div class="flex items-center space-x-3">
+                    <a href="/login" class="px-4 py-2 rounded-xl text-xs font-bold bg-emerald-700/60 hover:bg-emerald-700 text-emerald-100 border border-emerald-600 transition flex items-center space-x-1.5 shadow-xs">
+                        <i class="fa-solid fa-right-to-bracket"></i>
+                        <span>Already Registered? Log In</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-2xl mx-auto px-4 sm:px-6 py-8 w-full">
+        <div class="glass-card rounded-3xl shadow-2xl p-6 sm:p-10 border border-slate-200">
+            
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <img src="/static/images/logo.png" alt="AwamConnect Official Logo" class="h-18 w-18 mx-auto mb-3 object-contain rounded-2xl bg-white p-1 shadow-md border border-emerald-500/20">
+                <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                    Citizen Account Sign Up
+                </h1>
+                <p class="font-urdu text-base text-emerald-800 mt-1 font-semibold" dir="rtl">
+                    شہری رجسٹریشن برائے بلدیاتی شکایات
+                </p>
+                <p class="text-xs text-slate-500 mt-1">
+                    Register once to track all your civic grievances, emergency hazard alerts, and SLA progress.
+                </p>
+            </div>
+
+            <!-- Flash Alert Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                        {% for category, message in messages %}
+                            <div class="p-3.5 rounded-xl text-xs font-semibold flex items-center space-x-2 {% if category == 'danger' %}bg-red-50 text-red-800 border border-red-200{% elif category == 'success' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-blue-50 text-blue-800 border border-blue-200{% endif %}">
+                                <i class="fa-solid {% if category == 'danger' %}fa-circle-exclamation text-red-500{% elif category == 'success' %}fa-circle-check text-emerald-500{% else %}fa-circle-info text-blue-500{% endif %}"></i>
+                                <span>{{ message }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Registration Form -->
+            <form action="/signup" method="POST" class="space-y-5" onsubmit="return validateSignUpForm()">
+                
+                <!-- Full Name -->
+                <div>
+                    <label for="name" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Full Name <span class="text-red-500">*</span>
+                        <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">پورا نام</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-user text-sm"></i>
+                        </div>
+                        <input type="text" id="name" name="name" required
+                            value="{{ form_data.name if form_data else '' }}"
+                            placeholder="e.g. Muhammad Ali Khan"
+                            class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                    </div>
+                </div>
+
+                <!-- Username & Email (2-col grid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Username <span class="text-red-500">*</span>
+                            <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">صارف کا نام</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-at text-sm"></i>
+                            </div>
+                            <input type="text" id="username" name="username" required
+                                value="{{ form_data.username if form_data else '' }}"
+                                placeholder="e.g. alikhan99"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Email Address <span class="text-red-500">*</span>
+                            <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">ای میل</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-envelope text-sm"></i>
+                            </div>
+                            <input type="email" id="email" name="email" required
+                                value="{{ form_data.email if form_data else '' }}"
+                                placeholder="name@example.com"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CNIC & Phone (2-col grid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="cnic" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            CNIC Number <span class="text-red-500">*</span>
+                            <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">شناختی کارڈ نمبر</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-id-card text-sm"></i>
+                            </div>
+                            <input type="text" id="cnic" name="cnic" required
+                                value="{{ form_data.cnic if form_data else '' }}"
+                                placeholder="42101-1234567-1"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">13 digits (with or without dashes)</p>
+                    </div>
+
+                    <div>
+                        <label for="phone" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Phone Number <span class="text-red-500">*</span>
+                            <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">موبائل نمبر</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-phone text-sm"></i>
+                            </div>
+                            <input type="tel" id="phone" name="phone" required
+                                value="{{ form_data.phone if form_data else '' }}"
+                                placeholder="0300-1234567"
+                                class="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1">Used for municipal SMS alerts</p>
+                    </div>
+                </div>
+
+                <!-- Residential Address -->
+                <div>
+                    <label for="address" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Residential Address <span class="text-red-500">*</span>
+                        <span class="font-urdu text-slate-400 normal-case float-right text-[11px]">رہائشی پتہ</span>
+                    </label>
+                    <div class="relative">
+                        <div class="absolute top-3 left-3.5 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-location-dot text-sm"></i>
+                        </div>
+                        <textarea id="address" name="address" rows="2" required
+                            placeholder="e.g. House No. 12, Block 4, Gulshan-e-Iqbal, Karachi"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none resize-none">{{ form_data.address if form_data else '' }}</textarea>
+                    </div>
+                </div>
+
+                <!-- Password & Confirm Password (2-col grid) -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-lock text-sm"></i>
+                            </div>
+                            <input type="password" id="password" name="password" required minlength="6"
+                                placeholder="••••••••"
+                                class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                            <button type="button" onclick="togglePasswordVisibility('password', 'pwdToggleIcon1')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                                <i id="pwdToggleIcon1" class="fa-regular fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                            Confirm Password <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                <i class="fa-solid fa-shield-halved text-sm"></i>
+                            </div>
+                            <input type="password" id="confirm_password" name="confirm_password" required minlength="6"
+                                placeholder="••••••••"
+                                class="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm transition outline-none">
+                            <button type="button" onclick="togglePasswordVisibility('confirm_password', 'pwdToggleIcon2')" class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                                <i id="pwdToggleIcon2" class="fa-regular fa-eye text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Privacy -->
+                <div class="text-xs text-slate-500 flex items-start space-x-2 pt-1">
+                    <input type="checkbox" id="terms" required class="rounded text-emerald-600 focus:ring-emerald-500 mt-0.5">
+                    <label for="terms">
+                        I confirm that the provided CNIC, address, and contact details are accurate and belong to me under Sindh Municipal Redressal guidelines.
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitBtn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-lg transition duration-150 flex items-center justify-center space-x-2 text-sm">
+                    <i class="fa-solid fa-user-check"></i>
+                    <span>Create Citizen Account & Register</span>
+                </button>
+            </form>
+
+            <!-- Login Link Footer -->
+            <div class="mt-8 pt-6 border-t border-slate-200 text-center">
+                <p class="text-xs text-slate-600">
+                    Already have an account? 
+                    <a href="/login" class="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
+                        Log In with Username or Email <i class="fa-solid fa-arrow-right text-[10px] ml-0.5"></i>
+                    </a>
+                </p>
+                <div class="mt-3">
+                    <a href="/" class="text-xs text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-house mr-1"></i> Return to Homepage
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+        <p>© 2026 AwamConnect (عوام کنیکٹ) • Sindh Municipal Redressal Cell</p>
+    </footer>
+
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function validateSignUpForm() {
+            const pwd = document.getElementById('password').value;
+            const confirmPwd = document.getElementById('confirm_password').value;
+            if (pwd !== confirmPwd) {
+                alert("Passwords do not match. Please verify and re-type.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</body>
+</html>
